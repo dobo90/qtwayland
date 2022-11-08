@@ -207,6 +207,9 @@ public:
     void handleUpdate();
     void deliverUpdateRequest() override;
 
+    void beginFrame();
+    void endFrame();
+
     void addChildPopup(QWaylandWindow* child);
     void removeChildPopup(QWaylandWindow* child);
     void closeChildPopups();

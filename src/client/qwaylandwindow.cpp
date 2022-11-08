@@ -76,6 +76,7 @@ QWaylandWindow *QWaylandWindow::mMouseGrab = nullptr;
 QWaylandWindow::QWaylandWindow(QWindow *window, QWaylandDisplay *display)
     : QPlatformWindow(window)
     , mDisplay(display)
+    , mSurfaceLock(QReadWriteLock::Recursive)
     , mResizeAfterSwap(qEnvironmentVariableIsSet("QT_WAYLAND_RESIZE_AFTER_SWAP"))
 {
     {
@@ -237,6 +238,16 @@ bool QWaylandWindow::shouldCreateSubSurface() const
     return QPlatformWindow::parent() != nullptr;
 }
 
+void QWaylandWindow::beginFrame()
+{
+    mSurfaceLock.lockForRead();
+}
+
+void QWaylandWindow::endFrame()
+{
+    mSurfaceLock.unlock();
+}
+
 void QWaylandWindow::reset()
 {
     closeChildPopups();
@@ -245,10 +256,10 @@ void QWaylandWindow::reset()
     delete mSubSurfaceWindow;
     mSubSurfaceWindow = nullptr;
 
-    invalidateSurface();
     if (mSurface) {
         emit wlSurfaceDestroyed();
         QWriteLocker lock(&mSurfaceLock);
+        invalidateSurface();
         mSurface.reset();
     }
 
