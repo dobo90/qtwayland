@@ -432,10 +432,8 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
         return true;
     }
 
-    if (window->isExposed()) {
-        window->beginFrame();
+    if (window->isExposed())
         window->setCanResize(false);
-    }
     if (m_decorationsContext != EGL_NO_CONTEXT && !window->decoration())
         window->createDecoration();
 
@@ -451,7 +449,6 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
     if (!eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context)) {
         qWarning("QWaylandGLContext::makeCurrent: eglError: %x, this: %p \n", eglGetError(), this);
         window->setCanResize(true);
-        window->endFrame();
         return false;
     }
 
@@ -505,7 +502,6 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
     eglSwapBuffers(m_eglDisplay, eglSurface);
 
     window->setCanResize(true);
-    window->endFrame();
 }
 
 GLuint QWaylandGLContext::defaultFramebufferObject(QPlatformSurface *surface) const
